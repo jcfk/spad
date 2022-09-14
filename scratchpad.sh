@@ -189,7 +189,7 @@ case "$COMMAND" in
         if [ "$INDEX" ] ; then
             SCRATCHPADS=($(listscratchpads "$BASEDIR"))
             if [ "$INDEX" -lt "${#SCRATCHPADS[@]}" ] ; then
-                vim "${SCRATCHPADS[$INDEX]}"
+                $EDITOR "${SCRATCHPADS[$INDEX]}"
             else
                 echo "Index outside range."
             fi
@@ -197,7 +197,7 @@ case "$COMMAND" in
             if [ "$TITLE" ] ; then
                 echo $'# \n' > "$BASEDIR/$TIMESTAMP$TAG.$EXT"
             fi
-            vim "$BASEDIR/$TIMESTAMP$TAG.$EXT"
+            $EDITOR "$BASEDIR/$TIMESTAMP$TAG.$EXT" # and what if $EDITOR is not defined?
         fi
     ;;
     "ls")
@@ -236,7 +236,7 @@ case "$COMMAND" in
     ;;
     "day")
         # > I don't like the c-note, Rosato. I take that as an insult.
-        vim "$BASEDIR/$(date +%F-%A).txt"
+        $EDITOR "$BASEDIR/$(date +%F-%A).txt"
     ;;
 esac
 
