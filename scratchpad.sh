@@ -86,6 +86,7 @@ TAG=""
 QUERY=""
 EXT="txt"
 TITLE=""
+EDITOR="${EDITOR:-vi}"
 
 # global options
 while [ "${1:0:1}" == "-" ] ; do
@@ -197,7 +198,7 @@ case "$COMMAND" in
             if [ "$TITLE" ] ; then
                 echo $'# \n' > "$BASEDIR/$TIMESTAMP$TAG.$EXT"
             fi
-            $EDITOR "$BASEDIR/$TIMESTAMP$TAG.$EXT" # and what if $EDITOR is not defined?
+            $EDITOR "$BASEDIR/$TIMESTAMP$TAG.$EXT"
         fi
     ;;
     "ls")
@@ -235,7 +236,6 @@ case "$COMMAND" in
         done
     ;;
     "day")
-        # > I don't like the c-note, Rosato. I take that as an insult.
         $EDITOR "$BASEDIR/$(date +%F-%A).txt"
     ;;
 esac
