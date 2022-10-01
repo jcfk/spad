@@ -107,7 +107,7 @@ done
 
 # command
 if [ "$1" ] ; then
-    for C in "ls" "grep" "stdin" "cat" "rm" "day" ; do
+    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" ; do
         if [ "$1" == "$C" ] ; then
             COMMAND="$C"
             shift
@@ -174,6 +174,9 @@ $1"
         "day")
             err "command (day) does not take an argument"
         ;;
+        "yday")
+            err "command (yday) does not take an argument"
+        ;;
     esac
 fi
 
@@ -237,6 +240,9 @@ case "$COMMAND" in
     ;;
     "day")
         $EDITOR "$BASEDIR/$(date +%F-%A).txt"
+    ;;
+    "yday")
+        $EDITOR "$BASEDIR/$(date --date yesterday +%F-%A).txt"
     ;;
 esac
 
