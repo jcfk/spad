@@ -4,15 +4,17 @@
 # SPAD #
 ########
 
-# USAGE:
-# spad [-l] [--md] [_tag_] - create spad with or without tag
-# spad [-l] ls             - list spads
-# spad [-l] grep           - search spads
-# spad [-l] _index_        - open spad by index
-# spad [-l] stdin [_tag_]  - put stdin into spad with or without tag
-# spad [-l] cat _index_    - print spad to stdout
-# spad [-l] rm _index_...  - delete spad by index
-# spad [-l] day            - open spad for today
+HELP="USAGE:
+spad [-l] [--md] [_tag_] - create spad with or without tag
+spad [-l] ls             - list spads
+spad [-l] grep           - search spads
+spad [-l] _index_        - open spad by index
+spad [-l] stdin [_tag_]  - put stdin into spad with or without tag
+spad [-l] cat _index_    - print spad to stdout
+spad [-l] rm _index_...  - delete spad by index
+spad [-l] day            - open spad for today
+spad [-l] yday           - open spad for yesterday
+spad help                - print this message"
 
 # TODO
 # * spad stdin should work automatically
@@ -107,7 +109,7 @@ done
 
 # command
 if [ "$1" ] ; then
-    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" ; do
+    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "help" ; do
         if [ "$1" == "$C" ] ; then
             COMMAND="$C"
             shift
@@ -177,6 +179,8 @@ $1"
         "yday")
             err "command (yday) does not take an argument"
         ;;
+        "help")
+        ;;
     esac
 fi
 
@@ -243,6 +247,9 @@ case "$COMMAND" in
     ;;
     "yday")
         $EDITOR "$BASEDIR/$(date --date yesterday +%F-%A).txt"
+    ;;
+    "help")
+        echo "$HELP"
     ;;
 esac
 
