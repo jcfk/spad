@@ -14,6 +14,7 @@ spad [-l] cat _index_    - print spad to stdout
 spad [-l] rm _index_...  - delete spad by index
 spad [-l] day            - open spad for today
 spad [-l] yday           - open spad for yesterday
+spad [-l] nday           - open spad for tomorrow
 spad help                - print this message"
 
 # TODO
@@ -109,7 +110,7 @@ done
 
 # command
 if [ "$1" ] ; then
-    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "help" ; do
+    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "help" ; do
         if [ "$1" == "$C" ] ; then
             COMMAND="$C"
             shift
@@ -179,6 +180,9 @@ $1"
         "yday")
             err "command (yday) does not take an argument"
         ;;
+        "nday")
+            err "command (nday) does not take an argument"
+        ;;
         "help")
         ;;
     esac
@@ -247,6 +251,9 @@ case "$COMMAND" in
     ;;
     "yday")
         $EDITOR "$BASEDIR/$(date --date yesterday +%F-%A).txt"
+    ;;
+    "nday")
+        $EDITOR "$BASEDIR/$(date --date tomorrow +%F-%A).txt"
     ;;
     "help")
         echo "$HELP"
