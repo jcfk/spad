@@ -16,7 +16,7 @@ spad [-l] day             - open spad for today
 spad [-l] yday            - open spad for yesterday
 spad [-l] nday            - open spad for tomorrow
 spad [-l] note _notes_... - add a note to spad for today
-spad help                 - print this message"
+spad --help               - print this message"
 
 # TODO
 # * spad stdin should work automatically
@@ -102,6 +102,10 @@ while [ "${1:0:1}" == "-" ] ; do
             EXT="md"
             TITLE="# $TIMESTAMP"
         ;;
+        "--help")
+            echo "$HELP"
+            exit 0
+        ;;
         *)
             err "unknown global option \"$1\""
         ;;
@@ -111,7 +115,7 @@ done
 
 # command
 if [ "$1" ] ; then
-    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "note" "help" ; do
+    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "note" ; do
         if [ "$1" == "$C" ] ; then
             COMMAND="$C"
             shift
@@ -186,8 +190,6 @@ $1"
                 shift
             done
         ;;
-        "help")
-        ;;
     esac
 fi
 
@@ -253,9 +255,6 @@ case "$COMMAND" in
     ;;
     "note")
         echo "$(date +%T)>$NOTE" >> "$BASEDIR/$(date +%F-%A).txt"
-    ;;
-    "help")
-        echo "$HELP"
     ;;
 esac
 
