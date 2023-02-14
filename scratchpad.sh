@@ -53,7 +53,7 @@ printspads() { # print by scratchpad title or index
         for S in $SCRATCHPADS ; do
             L=$(head -n 1 $S)
             if [ "$(echo "$CHOSEN_SCRATCHPADS" | grep "$S")" ] ; then
-                LINE="$(printf "%0${INDEX_WIDTH}d" $I)) $SIZE ${S##*/}: $L"
+                LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
                 echo "${LINE:0:$TERM_WIDTH}"
             fi
             I=$(expr $I + 1)
