@@ -199,7 +199,7 @@ case "$COMMAND" in
             if [ "$INDEX" -lt "${#SCRATCHPADS[@]}" ] ; then
                 $EDITOR "${SCRATCHPADS[$INDEX]}"
             else
-                echo "Index outside range."
+                echo "index outside range"
             fi
         else
             if [ "$TITLE" ] ; then
@@ -217,7 +217,7 @@ case "$COMMAND" in
         if [ "$CHOSEN" ] ; then
             printspads "$SCRATCHPADS" "$CHOSEN"
         else
-            echo "No matches found."
+            echo "no matches found"
         fi
     ;;
     "stdin")
