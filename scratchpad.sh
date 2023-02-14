@@ -49,21 +49,20 @@ printspads() { # print by scratchpad title or index
     TERM_SIZE=$(stty size)
     TERM_WIDTH=${TERM_SIZE##* }
     I=0
-    # perhaps make this dryer. Put conditional inside loop...
-    if [ "$CHOSEN_SCRATCHPADS" ] ; then # print chosen titles
+    if [[ "$CHOSEN_SCRATCHPADS" ]] ; then # print chosen titles
         for S in $SCRATCHPADS ; do
             L=$(head -n 1 $S)
-            if [ "$(echo "$CHOSEN_SCRATCHPADS" | grep "$S")" ] ; then
+            if [[ "$(echo "$CHOSEN_SCRATCHPADS" | grep "$S")" ]] ; then
                 LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
                 echo "${LINE:0:$TERM_WIDTH}"
             fi
             I=$(expr $I + 1)
         done
-    elif [ "$CHOSEN_INDICES" ] ; then # print chosen indices
+    elif [[ "$CHOSEN_INDICES" ]] ; then # print chosen indices
         for S in $SCRATCHPADS ; do
             L=$(head -n 1 $S)
             for CHOSEN_INDEX in $CHOSEN_INDICES ; do
-                if [ "$I" -eq "$CHOSEN_INDEX" ] ; then
+                if [[ "$I" -eq "$CHOSEN_INDEX" ]] ; then
                     LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
                     echo "${LINE:0:$TERM_WIDTH}"
                     break
@@ -93,7 +92,7 @@ NOTE=""
 EDITOR="${EDITOR:-vi}"
 
 # global options
-while [ "${1:0:1}" == "-" ] ; do
+while [[ "${1:0:1}" == "-" ]] ; do
     case "$1" in
         "-l")
             BASEDIR="."
@@ -114,9 +113,9 @@ while [ "${1:0:1}" == "-" ] ; do
 done
 
 # command
-if [ "$1" ] ; then
+if [[ "$1" ]] ; then
     for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "note" ; do
-        if [ "$1" == "$C" ] ; then
+        if [[ "$1" == "$C" ]] ; then
             COMMAND="$C"
             shift
             break
@@ -125,7 +124,7 @@ if [ "$1" ] ; then
 fi
 
 # command options
-while [ "${1:0:1}" == "-" ] ; do
+while [[ "${1:0:1}" == "-" ]] ; do
     # this should be a command case statement around an option case
     # statement, which could get big very quickly
     case "$1" in
@@ -137,10 +136,10 @@ while [ "${1:0:1}" == "-" ] ; do
 done
 
 # command argument
-if [ "$1" ] ; then
+if [[ "$1" ]] ; then
     case $COMMAND in
         "spad")
-            if [ $(numeric "$1") ] ; then
+            if [[ $(numeric "$1") ]] ; then
                 INDEX="$1"
             else
                 err "unknown command \"$1\""
@@ -163,8 +162,8 @@ if [ "$1" ] ; then
             fi
         ;;
         "rm")
-            while [ "$1" ] ; do
-                if [ $(numeric "$1") ] ; then
+            while [[ "$1" ]] ; do
+                if [[ $(numeric "$1") ]] ; then
                     # fix this syntax
                     # INDICES="$1 $INDICES" (??)
                     INDICES="$INDICES
@@ -196,9 +195,9 @@ fi
 # action
 case "$COMMAND" in
     "spad")
-        if [ "$INDEX" ] ; then
+        if [[ "$INDEX" ]] ; then
             SCRATCHPADS=($(listscratchpads "$BASEDIR"))
-            if [ "$INDEX" -lt "${#SCRATCHPADS[@]}" ] ; then
+            if [[ "$INDEX" -lt "${#SCRATCHPADS[@]}" ]] ; then
                 $EDITOR "${SCRATCHPADS[$INDEX]}"
             else
                 echo "index outside range"
@@ -216,7 +215,7 @@ case "$COMMAND" in
     "grep")
         SCRATCHPADS=$(listscratchpads $BASEDIR)
         CHOSEN=$(grep -li -E "$QUERY" $SCRATCHPADS)
-        if [ "$CHOSEN" ] ; then
+        if [[ "$CHOSEN" ]] ; then
             printspads "$SCRATCHPADS" "$CHOSEN"
         else
             echo "no matches found"
@@ -235,7 +234,7 @@ case "$COMMAND" in
         printspads "$SCRATCHPADS" "" "$INDICES"
         echo "confirm rm scratchpads $INDICES? y/N"
         read -s -n 1 RESPONSE
-        if [ "$RESPONSE" != 'y' ] ; then
+        if [[ "$RESPONSE" != 'y' ]] ; then
             echo "aborted"
             exit 1
         fi
