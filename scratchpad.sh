@@ -5,17 +5,18 @@
 ########
 
 HELP="USAGE:
-spad [-l] [--md] [_tag_] - create spad with or without tag
-spad [-l] ls             - list spads
-spad [-l] grep           - search spads
-spad [-l] _index_        - open spad by index
-spad [-l] stdin [_tag_]  - put stdin into spad with or without tag
-spad [-l] cat _index_    - print spad to stdout
-spad [-l] rm _index_...  - delete spad by index
-spad [-l] day            - open spad for today
-spad [-l] yday           - open spad for yesterday
-spad [-l] nday           - open spad for tomorrow
-spad help                - print this message"
+spad [-l] [--md] [_tag_]  - create spad with or without tag
+spad [-l] ls              - list spads
+spad [-l] grep            - search spads
+spad [-l] _index_         - open spad by index
+spad [-l] stdin [_tag_]   - put stdin into spad with or without tag
+spad [-l] cat _index_     - print spad to stdout
+spad [-l] rm _index_...   - delete spad by index
+spad [-l] day             - open spad for today
+spad [-l] yday            - open spad for yesterday
+spad [-l] nday            - open spad for tomorrow
+spad [-l] note _notes_... - add a note to spad for today
+spad help                 - print this message"
 
 # TODO
 # * spad stdin should work automatically
@@ -89,6 +90,7 @@ TAG=""
 QUERY=""
 EXT="txt"
 TITLE=""
+NOTE=""
 EDITOR="${EDITOR:-vi}"
 
 # global options
@@ -110,7 +112,7 @@ done
 
 # command
 if [ "$1" ] ; then
-    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "help" ; do
+    for C in "ls" "grep" "stdin" "cat" "rm" "day" "yday" "nday" "note" "help" ; do
         if [ "$1" == "$C" ] ; then
             COMMAND="$C"
             shift
@@ -183,6 +185,12 @@ $1"
         "nday")
             err "command (nday) does not take an argument"
         ;;
+        "note")
+            while [[ $# -gt 0 ]] ; do
+                NOTE="$NOTE $1"
+                shift
+            done
+        ;;
         "help")
         ;;
     esac
@@ -254,6 +262,9 @@ case "$COMMAND" in
     ;;
     "nday")
         $EDITOR "$BASEDIR/$(date --date tomorrow +%F-%A).txt"
+    ;;
+    "note")
+        echo "$(date +%T)>$NOTE" >> "$BASEDIR/$(date +%F-%A).txt"
     ;;
     "help")
         echo "$HELP"
