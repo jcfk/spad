@@ -5,11 +5,11 @@
 ########
 
 HELP="USAGE:
-spad [-l] [--md] [_tag_]  - create spad with or without tag
+spad [-l] [--md]          - create spad
 spad [-l] ls              - list spads
 spad [-l] grep            - search spads
 spad [-l] _index_         - open spad by index
-spad [-l] stdin [_tag_]   - put stdin into spad with or without tag
+spad [-l] stdin           - put stdin into spad
 spad [-l] cat _index_     - print spad to stdout
 spad [-l] rm _index_...   - delete spad by index
 spad [-l] day             - open spad for today
@@ -86,7 +86,6 @@ BASEDIR="$MY_SYNC/corpus/dump/scratchpad"
 COMMAND="spad"
 INDEX="" # check index assignment to make sure index is within range
 INDICES=""
-TAG=""
 QUERY=""
 EXT="txt"
 TITLE=""
@@ -140,7 +139,7 @@ if [ "$1" ] ; then
             if [ $(numeric "$1") ] ; then
                 INDEX="$1"
             else
-                TAG="$1"
+                err "unknown command \"$1\""
             fi
         ;;
         "ls")
@@ -150,17 +149,13 @@ if [ "$1" ] ; then
             QUERY="$1"
         ;;
         "stdin")
-            if [ $(numeric "$1") ] ; then
-                err "command (spad) tag cannot be numeric"
-            else
-                TAG="$1"
-            fi
+            err "command (stdin) does not take an argument"
         ;;
         "cat")
             if [ $(numeric "$1") ] ; then
                 INDEX="$1"
             else
-                err "command (cat) was not provided with an index"
+                err "command (cat) index must be numeric"
             fi
         ;;
         "rm")
@@ -171,7 +166,7 @@ if [ "$1" ] ; then
                     INDICES="$INDICES
 $1"
                 else
-                    err "command (rm) was not provided with an index"
+                    err "command (rm) index must be numeric"
                 fi
                 shift
             done
@@ -196,13 +191,6 @@ $1"
     esac
 fi
 
-if [ "$TAG" ] ; then
-    if [[ "$TAG" =~ ^.*[[:space:]].*$ ]] ; then
-        err "tag cannot contain whitespace \"$TAG\""
-    fi
-    TAG="-$TAG"
-fi
-
 # action
 case "$COMMAND" in
     "spad")
@@ -215,9 +203,9 @@ case "$COMMAND" in
             fi
         else
             if [ "$TITLE" ] ; then
-                echo $'# \n' > "$BASEDIR/$TIMESTAMP$TAG.$EXT"
+                echo "$TITLE\n" > "$BASEDIR/$TIMESTAMP.$EXT"
             fi
-            $EDITOR "$BASEDIR/$TIMESTAMP$TAG.$EXT"
+            $EDITOR "$BASEDIR/$TIMESTAMP.$EXT"
         fi
     ;;
     "ls")
@@ -233,7 +221,7 @@ case "$COMMAND" in
         fi
     ;;
     "stdin")
-        cat /dev/stdin > "$BASEDIR/$TIMESTAMP$TAG.$EXT"
+        cat /dev/stdin > "$BASEDIR/$TIMESTAMP.$EXT"
         echo "captured stdin"
     ;;
     "cat")
