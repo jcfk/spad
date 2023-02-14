@@ -155,7 +155,7 @@ if [[ "$1" ]] ; then
             err "command (stdin) does not take an argument"
         ;;
         "cat")
-            if [ $(numeric "$1") ] ; then
+            if [[ $(numeric "$1") ]] ; then
                 INDEX="$1"
             else
                 err "command (cat) index must be numeric"
@@ -203,7 +203,7 @@ case "$COMMAND" in
                 echo "index outside range"
             fi
         else
-            if [ "$TITLE" ] ; then
+            if [[ "$TITLE" ]] ; then
                 echo "$TITLE\n" > "$BASEDIR/$TIMESTAMP.$EXT"
             fi
             $EDITOR "$BASEDIR/$TIMESTAMP.$EXT"
