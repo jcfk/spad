@@ -99,7 +99,7 @@ while [[ "${1:0:1}" == "-" ]] ; do
         ;;
         "--md")
             EXT="md"
-            TITLE="# $TIMESTAMP"
+            TITLE="# Spad $TIMESTAMP"
         ;;
         "--help")
             echo "$HELP"
@@ -201,7 +201,7 @@ case "$COMMAND" in
             fi
         else
             if [[ "$TITLE" ]] ; then
-                echo "$TITLE\n" > "$BASEPATH/$TIMESTAMP.$EXT"
+                echo "$TITLE" > "$BASEPATH/$TIMESTAMP.$EXT"
             fi
             $EDITOR "$BASEPATH/$TIMESTAMP.$EXT"
         fi
