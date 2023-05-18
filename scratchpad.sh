@@ -235,10 +235,12 @@ case "$COMMAND" in
             echo "aborted"
             exit 1
         fi
-        SCRATCHPADS=($SCRATCHPADS) # how ugly
-        for INDEX in $INDICES ; do
-            rm "$BASEPATH/${SCRATCHPADS[$INDEX]}"
-        done
+        echo "$SCRATCHPADS" | awk -v bp="$BASEPATH" -v inds="$INDICES" \
+        '{
+            if (match(inds, "b" NR-1 "e") > 0) {
+                system("rm " bp "/" $1)
+            }
+        }'
     ;;
     "day")
         $EDITOR "$BASEPATH/$(date +%F-%A).txt"
