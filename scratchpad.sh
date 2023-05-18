@@ -5,18 +5,18 @@
 ########
 
 HELP="USAGE:
-spad [-l] [--md]          - create spad
-spad [-l] ls              - list spads
-spad [-l] grep            - search spads
-spad [-l] _index_         - open spad by index
-spad [-l] stdin           - put stdin into spad
-spad [-l] cat _index_     - print spad to stdout
-spad [-l] rm _index_...   - delete spad by index
-spad [-l] day             - open spad for today
-spad [-l] yday            - open spad for yesterday
-spad [-l] nday            - open spad for tomorrow
-spad [-l] note _notes_... - add a note to spad for today
-spad --help               - print this message"
+spad [-l] [--md]           - create spad
+spad [-l] ls               - list spads
+spad [-l] grep             - search spads
+spad [-l] _index_          - open spad by index
+spad [-l] stdin            - put stdin into spad
+spad [-l] cat _index_      - print spad to stdout
+spad [-l] rm _index_...    - delete spad by index
+spad [-l] day              - open spad for today
+spad [-l] yday             - open spad for yesterday
+spad [-l] nday             - open spad for tomorrow
+spad [-l] note _notes_...  - add a note to spad for today
+spad --help                - print this message"
 
 # TODO
 # * spad stdin should work automatically
@@ -256,5 +256,4 @@ case "$COMMAND" in
         echo "$(date +%T)>$NOTE" >> "$BASEDIR/$(date +%F-%A).txt"
     ;;
 esac
-
 
