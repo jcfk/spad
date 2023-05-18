@@ -33,55 +33,55 @@ err() {
     echo "$1" ; exit 1
 }
 
-listscratchpads() {
-    find "$1" -maxdepth 1 \
-        -type f \
-        -name "*.txt" \
-        -o -name "*.md" | sort
+listspads() {
+    find "$1" -maxdepth 1 -type f \( -name "*.txt" -o -name "*.md" \) \
+        -printf '%P\n' | sort -V
 }
 
 printspads() { # print by scratchpad title or index
     SCRATCHPADS="$1"
-    CHOSEN_SCRATCHPADS="$2" # to choose scratchpads to print by title
+    CHOSEN_SCRATCHPADS="$2" # to choose scratchpads to print by name
     CHOSEN_INDICES="$3"     # to choose scratchpads to print by index
 
-    INDEX_WIDTH=$(expr "$(echo "$SCRATCHPADS" | wc -w | wc -m)" - 1)
     TERM_SIZE=$(stty size)
     TERM_WIDTH=${TERM_SIZE##* }
     I=0
     if [[ "$CHOSEN_SCRATCHPADS" ]] ; then # print chosen titles
-        for S in $SCRATCHPADS ; do
-            L=$(head -n 1 $S)
-            if [[ "$(echo "$CHOSEN_SCRATCHPADS" | grep "$S")" ]] ; then
-                LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
-                echo "${LINE:0:$TERM_WIDTH}"
-            fi
-            I=$(expr $I + 1)
-        done
+        # I think this matching system could be more idiomatic
+        echo "$SCRATCHPADS" | awk -v bp="$BASEPATH" -v tw="$TERM_WIDTH" \
+            -v cs="$CHOSEN_SCRATCHPADS" \
+        '{
+            if (match(cs, $1) > 0) {
+                if ((getline head < (bp "/" $1)) < 1) {
+                    head = "[EMPTY]"
+                }
+                print substr(NR-1") "$1": "head, 0, tw)
+            }
+        }'
     elif [[ "$CHOSEN_INDICES" ]] ; then # print chosen indices
-        for S in $SCRATCHPADS ; do
-            L=$(head -n 1 $S)
-            for CHOSEN_INDEX in $CHOSEN_INDICES ; do
-                if [[ "$I" -eq "$CHOSEN_INDEX" ]] ; then
-                    LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
-                    echo "${LINE:0:$TERM_WIDTH}"
-                    break
-                fi
-            done
-            I=$(expr $I + 1)
-        done
+        echo "$SCRATCHPADS" | awk -v bp="$BASEPATH" -v tw="$TERM_WIDTH" \
+            -v inds="$CHOSEN_INDICES" \
+        '{
+            if (match(inds, "b" NR-1 "e") > 0) {
+                if ((getline head < (bp "/" $1)) < 1) {
+                    head = "[EMPTY]"
+                }
+                print substr(NR-1") "$1": "head, 0, tw)
+            }
+        }'
     else # print all
-        for S in $SCRATCHPADS ; do
-            L=$(head -n 1 $S)
-            LINE="$(printf "%0${INDEX_WIDTH}d" $I)) ${S##*/}: $L"
-            echo "${LINE:0:$TERM_WIDTH}"
-            I=$(expr $I + 1)
-        done
+        echo "$SCRATCHPADS" | awk -v bp="$BASEPATH" -v tw="$TERM_WIDTH" \
+        '{
+            if ((getline head < (bp "/" $1)) < 1) {
+                head = "[EMPTY]"
+            }
+            print substr(NR-1") "$1": "head, 0, tw)
+        }'
     fi
 }
 
 TIMESTAMP="$(date +%F-%T:%N)"
-BASEDIR="$MY_SYNC/corpus/dump/scratchpad"
+BASEPATH="$MY_SYNC/corpus/dump/scratchpad"
 COMMAND="spad"
 INDEX="" # check index assignment to make sure index is within range
 INDICES=""
@@ -95,7 +95,7 @@ EDITOR="${EDITOR:-vi}"
 while [[ "${1:0:1}" == "-" ]] ; do
     case "$1" in
         "-l")
-            BASEDIR="."
+            BASEPATH="."
         ;;
         "--md")
             EXT="md"
@@ -164,10 +164,7 @@ if [[ "$1" ]] ; then
         "rm")
             while [[ "$1" ]] ; do
                 if [[ $(numeric "$1") ]] ; then
-                    # fix this syntax
-                    # INDICES="$1 $INDICES" (??)
-                    INDICES="$INDICES
-$1"
+                    INDICES="${INDICES}b${1}e" # b and e; lol
                 else
                     err "command (rm) index must be numeric"
                 fi
@@ -196,43 +193,43 @@ fi
 case "$COMMAND" in
     "spad")
         if [[ "$INDEX" ]] ; then
-            SCRATCHPADS=($(listscratchpads "$BASEDIR"))
+            SCRATCHPADS=($(listspads "$BASEPATH"))
             if [[ "$INDEX" -lt "${#SCRATCHPADS[@]}" ]] ; then
-                $EDITOR "${SCRATCHPADS[$INDEX]}"
+                $EDITOR "$BASEPATH/${SCRATCHPADS[$INDEX]}"
             else
                 echo "index outside range"
             fi
         else
             if [[ "$TITLE" ]] ; then
-                echo "$TITLE\n" > "$BASEDIR/$TIMESTAMP.$EXT"
+                echo "$TITLE\n" > "$BASEPATH/$TIMESTAMP.$EXT"
             fi
-            $EDITOR "$BASEDIR/$TIMESTAMP.$EXT"
+            $EDITOR "$BASEPATH/$TIMESTAMP.$EXT"
         fi
     ;;
     "ls")
-        printspads "$(listscratchpads $BASEDIR)"
+        printspads "$(listspads $BASEPATH)"
     ;;
     "grep")
-        SCRATCHPADS=$(listscratchpads $BASEDIR)
-        CHOSEN=$(grep -li -E "$QUERY" $SCRATCHPADS)
-        if [[ "$CHOSEN" ]] ; then
-            printspads "$SCRATCHPADS" "$CHOSEN"
+        SCRATCHPADS=$(listspads $BASEPATH)
+        CHOSEN_SCRATCHPADS=$(grep -li -d skip -E "$QUERY" $BASEPATH/*)
+        if [[ "$CHOSEN_SCRATCHPADS" ]] ; then
+            printspads "$SCRATCHPADS" "$CHOSEN_SCRATCHPADS"
         else
             echo "no matches found"
         fi
     ;;
     "stdin")
-        cat /dev/stdin > "$BASEDIR/$TIMESTAMP.$EXT"
+        cat /dev/stdin > "$BASEPATH/$TIMESTAMP.$EXT"
         echo "captured stdin"
     ;;
     "cat")
-        SCRATCHPADS=($(listscratchpads "$BASEDIR"))
+        SCRATCHPADS=($(listspads "$BASEPATH"))
         cat "${SCRATCHPADS[$INDEX]}"
     ;;
     "rm")
-        SCRATCHPADS=$(listscratchpads "$BASEDIR")
+        SCRATCHPADS=$(listspads "$BASEPATH")
         printspads "$SCRATCHPADS" "" "$INDICES"
-        echo "confirm rm scratchpads $INDICES? y/N"
+        echo "confirm rm above scratchpads? y/N"
         read -s -n 1 RESPONSE
         if [[ "$RESPONSE" != 'y' ]] ; then
             echo "aborted"
@@ -240,20 +237,20 @@ case "$COMMAND" in
         fi
         SCRATCHPADS=($SCRATCHPADS) # how ugly
         for INDEX in $INDICES ; do
-            rm "${SCRATCHPADS[$INDEX]}"
+            rm "$BASEPATH/${SCRATCHPADS[$INDEX]}"
         done
     ;;
     "day")
-        $EDITOR "$BASEDIR/$(date +%F-%A).txt"
+        $EDITOR "$BASEPATH/$(date +%F-%A).txt"
     ;;
     "yday")
-        $EDITOR "$BASEDIR/$(date --date yesterday +%F-%A).txt"
+        $EDITOR "$BASEPATH/$(date --date yesterday +%F-%A).txt"
     ;;
     "nday")
-        $EDITOR "$BASEDIR/$(date --date tomorrow +%F-%A).txt"
+        $EDITOR "$BASEPATH/$(date --date tomorrow +%F-%A).txt"
     ;;
     "note")
-        echo "$(date +%T)>$NOTE" >> "$BASEDIR/$(date +%F-%A).txt"
+        echo "$(date +%T)>$NOTE" >> "$BASEPATH/$(date +%F-%A).txt"
     ;;
 esac
 
